@@ -1,0 +1,77 @@
+name: Build U3D
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  linux:
+    name: Linux / openSUSE Leap
+    runs-on: ubuntu-24.04
+    container:
+      image: opensuse/leap:16.0
+
+    steps:
+      - name: Install dependencies
+        run: |
+          zypper --non-interactive refresh
+          zypper --non-interactive install \
+            git cmake ninja gcc gcc-c++ make \
+            pkg-config \
+            libX11-devel libXext-devel libXrandr-devel \
+            libXinerama-devel libXcursor-devel libXi-devel \
+            libXxf86vm-devel \
+            mesa-libGL-devel \
+            libSDL2-devel
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$PWD/install"
+
+      - name: Build
+        run: cmake --build build --parallel 2
+
+      - name: Install
+        run: cmake --install build
+
+      - name: Upload Linux build
+        uses: actions/upload-artifact@v4
+        with:
+          name: u3d-opensuse-leap
+          path: install/
+
+  windows:
+    name: Windows x64 / Win8.1 compatibility
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure
+        run: |
+          cmake -S . -B build -A x64 `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_INSTALL_PREFIX="$PWD/install"
+
+      - name: Build
+        run: cmake --build build --config Release --parallel 2
+
+      - name: Install
+        run: cmake --install build --config Release
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: u3d-windows-x64
+          path: install/
