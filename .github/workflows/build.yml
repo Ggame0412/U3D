@@ -16,14 +16,14 @@ jobs:
       - name: Install dependencies
         run: |
           zypper --non-interactive refresh
-          zypper --non-interactive install \
-            git cmake ninja gcc gcc-c++ make \
-            pkg-config \
-            libX11-devel libXext-devel libXrandr-devel \
-            libXinerama-devel libXcursor-devel libXi-devel \
-            libXxf86vm-devel \
-            mesa-libGL-devel \
-            libSDL2-devel
+          sudo zypper --non-interactive install \
+  git cmake ninja gcc gcc-c++ make \
+  pkg-config \
+  libX11-devel libXext-devel libXrandr-devel \
+  libXinerama-devel libXcursor-devel libXi-devel \
+  libXxf86vm-devel \
+  Mesa-libGL-devel \
+  SDL2-devel
 
       - name: Checkout
         uses: actions/checkout@v4
